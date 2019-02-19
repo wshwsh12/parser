@@ -530,7 +530,7 @@ AAAAAAAAAAAA5gm5Mg==
 
 		// for show table regions.
 		{"show table t1 regions", true},
-		{"show table t1", false, },
+		{"show table t1", false},
 		{"show table t1 index idx1 regions", true},
 		{"show table t1 index idx1", false},
 	}
@@ -1658,7 +1658,7 @@ partition p3 values in (3) ENGINE = InnoDB) */`, true},
 		// for default value
 		{"CREATE TABLE sbtest (id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, k integer UNSIGNED DEFAULT '0' NOT NULL, c char(120) DEFAULT '' NOT NULL, pad char(60) DEFAULT '' NOT NULL, PRIMARY KEY  (id) )", true},
 		{"create table test (create_date TIMESTAMP NOT NULL COMMENT '创建日期 create date' DEFAULT now());", true},
-		{"create table ts (t int, v timestamp(3) default CURRENT_TIMESTAMP(3));", true},
+		{"create table ts (t int, v timestamp(3) default CURRENT_TIMESTAMP(3));", true}, //TODO: The number yacc in parentheses has not been implemented yet.
 		// Create table with primary key name.
 		{"create table if not exists `t` (`id` int not null auto_increment comment '消息ID', primary key `pk_id` (`id`) );", true},
 		// Create table with like.
@@ -1689,7 +1689,7 @@ partition p3 values in (3) ENGINE = InnoDB) */`, true},
 		{"CREATE TABLE t (c TEXT) shard_row_id_bits = 1;", true},
 		{"CREATE TABLE t (c TEXT) shard_row_id_bits = 1, PRE_SPLIT_REGIONS = 1;", true},
 		// Create table with ON UPDATE CURRENT_TIMESTAMP(6), specify fraction part.
-		{"CREATE TABLE IF NOT EXISTS `general_log` (`event_time` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),`user_host` mediumtext NOT NULL,`thread_id` bigint(20) unsigned NOT NULL,`server_id` int(10) unsigned NOT NULL,`command_type` varchar(64) NOT NULL,`argument` mediumblob NOT NULL) ENGINE=CSV DEFAULT CHARSET=utf8 COMMENT='General log'", true, "CREATE TABLE IF NOT EXISTS `general_log` (`event_time` TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),`user_host` MEDIUMTEXT NOT NULL,`thread_id` BIGINT(20) UNSIGNED NOT NULL,`server_id` INT(10) UNSIGNED NOT NULL,`command_type` VARCHAR(64) NOT NULL,`argument` MEDIUMBLOB NOT NULL) ENGINE = CSV DEFAULT CHARACTER SET = UTF8 COMMENT = 'General log'"}, //TODO: The number yacc in parentheses has not been implemented yet.
+		{"CREATE TABLE IF NOT EXISTS `general_log` (`event_time` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),`user_host` mediumtext NOT NULL,`thread_id` bigint(20) unsigned NOT NULL,`server_id` int(10) unsigned NOT NULL,`command_type` varchar(64) NOT NULL,`argument` mediumblob NOT NULL) ENGINE=CSV DEFAULT CHARSET=utf8 COMMENT='General log'", true}, //TODO: The number yacc in parentheses has not been implemented yet.
 		// For reference_definition in column_definition.
 		{"CREATE TABLE followers ( f1 int NOT NULL REFERENCES user_profiles (uid) );", true},
 
@@ -2715,12 +2715,12 @@ func (s *testParserSuite) TestNotExistsSubquery(c *C) {
 		{`select * from t1 where not exists (select * from t2 where t1.a = t2.a)`, true},
 	}
 
- 	parser := New()
+	parser := New()
 	for _, tt := range table {
 		stmt, _, err := parser.Parse(tt.src, "", "")
 		c.Assert(err, IsNil)
 
- 		sel := stmt[0].(*ast.SelectStmt)
+		sel := stmt[0].(*ast.SelectStmt)
 		exists, ok := sel.Where.(*ast.ExistsSubqueryExpr)
 		c.Assert(ok, IsTrue)
 		c.Assert(exists.Not, Equals, tt.ok)

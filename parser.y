@@ -1781,7 +1781,7 @@ NowSymOptionFraction:
 	}
 |	NowSymFunc '(' NUM ')'
 	{
-		$$ = &ast.FuncCallExpr{FnName: model.NewCIStr("CURRENT_TIMESTAMP")}
+		$$ = &ast.FuncCallExpr{FnName: model.NewCIStr("CURRENT_TIMESTAMP"), Args: []ast.ExprNode{ast.NewValueExpr($3)}}
 	}
 
 /*
